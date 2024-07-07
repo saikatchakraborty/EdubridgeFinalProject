@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AmazonProject" default="test" basedir=".">
+
+    <!-- Define properties -->
+    <property name="src.dir" location="src/main/java"/>
+    <property name="test.dir" location="src/test/java"/>
+    <property name="build.dir" location="build"/>
+    <property name="classes.dir" location="${build.dir}/classes"/>
+    <property name="test.classes.dir" location="${build.dir}/test-classes"/>
+    <property name="report.dir" location="${build.dir}/reports"/>
+    <property name="lib.dir" location="lib"/>
+
+    <!-- Create necessary directories -->
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${report.dir}"/>
+    </target>
+
+    <!-- Clean build directory -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!-- Compile the code -->
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false">
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="*/.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Compile the tests -->
+    <target name="compile-tests" depends="compile">
+        <javac srcdir="${test.dir}" destdir="${test.classes.dir}" includeantruntime="false">
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+                <fileset dir="${lib.dir}">
+                    <include name="*/.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Run the Cucumber tests -->
+    <target name="test" depends="compile-tests">
+        <java classname="org.junit.runner.JUnitCore" fork="true" failonerror="true">
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+                <pathelement location="${test.classes.dir}"/>
+                <fileset dir="${lib.dir}">
+                    <include name="*/.jar"/>
+                </fileset>
+            </classpath>
+            <arg value="cucumber.api.cli.Main"/>
+            <arg value="--plugin"/>
+            <arg value="pretty"/>
+            <arg value="--plugin"/>
+            <arg value="html:${report.dir}/cucumber-html-report"/>
+            <arg value="--glue"/>
+            <arg value="stepdefinitions"/>
+            <arg value="features"/>
+        </java>
+    </target>
+
+</project>
